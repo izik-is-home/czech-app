@@ -1,0 +1,616 @@
+:root {
+    --primary: #002b5b;
+    --secondary: #ed1c24;
+    --success: #28a745;
+    --success-light: #90EE90;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --light: #f8f9fa;
+    --gray: #e9ecef;
+    --dark: #212529;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    dir: rtl;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: var(--primary);
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.score-item {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.score-item.correct {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.score-item.wrong {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray);
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    border: none;
+    background-color: var(--gray);
+    color: var(--dark);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 5px 5px 0 0;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background-color: #dee2e6;
+}
+
+.tab-btn.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Search Section */
+.search-section {
+    margin-bottom: 10px;
+}
+
+.search-section input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid var(--gray);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.search-section input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.search-result {
+    padding: 10px;
+    min-height: 20px;
+    font-size: 0.95rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+/* Sort Controls */
+.sort-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.sort-controls label {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.sort-controls select {
+    padding: 8px 10px;
+    border: 2px solid var(--gray);
+    border-radius: 6px;
+    background: white;
+    font-size: 0.95rem;
+}
+
+.sort-controls select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Form Section */
+.form-section {
+    background-color: var(--light);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.form-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--primary);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.form-group input {
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid var(--gray);
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #001d3d;
+    box-shadow: 0 2px 8px rgba(0, 43, 91, 0.2);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: var(--gray);
+    color: var(--dark);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #dee2e6;
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-edit {
+    background-color: var(--warning);
+    color: var(--dark);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* Table Section */
+.table-section {
+    margin-top: 10px;
+}
+
+.words-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.words-table thead {
+    background-color: var(--primary);
+    color: white;
+}
+
+.words-table th,
+.words-table td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--gray);
+}
+
+.words-table tbody tr:hover {
+    background-color: var(--light);
+}
+
+.words-table tbody tr:last-child td {
+    border-bottom: 2px solid var(--primary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--dark);
+}
+
+.close-modal:hover {
+    color: var(--danger);
+}
+
+.modal-content h2 {
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+/* Game Section */
+#game-container {
+    text-align: center;
+}
+
+/* Difficulty Selector */
+.difficulty-section {
+    padding: 40px 20px;
+}
+
+.difficulty-section h2 {
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.difficulty-section p {
+    font-size: 1.1rem;
+    color: var(--dark);
+    margin-bottom: 20px;
+}
+
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.difficulty-btn {
+    padding: 15px 10px;
+    border: 2px solid var(--gray);
+    background-color: white;
+    color: var(--dark);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.difficulty-btn:hover {
+    border-color: var(--primary);
+    background-color: #f8f9fa;
+}
+
+.difficulty-btn.selected {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Game Progress */
+.game-progress {
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--gray);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+/* Game Card */
+.game-card {
+    background-color: #f0f7ff;
+    border: 3px solid var(--primary);
+    border-radius: 10px;
+    padding: 40px 20px;
+    margin: 20px 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary);
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Options Grid */
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.option-btn {
+    padding: 20px;
+    font-size: 1.1rem;
+    border: 2px solid var(--gray);
+    background-color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.option-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background-color: #f8f9fa;
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
+}
+
+.option-btn.correct {
+    background-color: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+.option-btn.wrong {
+    background-color: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+.option-btn.correct-shown {
+    background-color: var(--success-light);
+    color: var(--dark);
+    border-color: var(--success);
+    font-weight: bold;
+}
+
+/* Next Button (larger & centered) */
+.next-btn {
+    margin-top: 30px;
+    padding: 18px 48px;
+    font-size: 1.25rem;
+    min-width: 320px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 12px;
+}
+
+/* Game Summary */
+.game-summary {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.game-summary h2 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.game-summary p {
+    font-size: 1.3rem;
+    margin: 15px 0;
+    color: var(--dark);
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .scoreboard {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        width: 100%;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .game-card {
+        font-size: 2rem;
+    }
+
+    .difficulty-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .words-table {
+        font-size: 0.9rem;
+    }
+
+    .words-table th,
+    .words-table td {
+        padding: 8px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+
+    .next-btn {
+        min-width: auto;
+        padding: 14px 30px;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .modal-buttons button {
+        width: 100%;
+    }
+}

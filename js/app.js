@@ -20,7 +20,6 @@ let sortOrder = 'asc';
 window.onload = async () => {
     try {
         _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         // Initialize authentication
         initializeAuthListeners();
         await checkAuthSession();

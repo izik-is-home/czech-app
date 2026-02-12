@@ -20,6 +20,11 @@ let sortOrder = 'asc';
 window.onload = async () => {
     try {
         _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Initialize authentication
+        initializeAuthListeners();
+        await checkAuthSession();
+
         await fetchWords();
         // set default selects
         const langSelect = document.getElementById('sort-lang');
@@ -35,12 +40,21 @@ window.onload = async () => {
 // Fetch all words from database
 async function fetchWords() {
     try {
+        // בדיקה: האם יש משתמש מחובר?
+        if (!currentUser) {
+            // אם אין משתמש מחובר, לא להציג מילים
+            wordsData = [];
+            renderTable();
+            return;
+        }
+
         const { data, error } = await _supabase
             .from('vocabulary')
-            .select('*');
-        
+            .select('*')
+            .eq('user_id', currentUser.id);  // רק מילים של המשתמש המחובר
+
         if (error) throw error;
-        
+
         wordsData = data || [];
         // default: sort ascending by czech
         applySort();
@@ -56,24 +70,34 @@ async function addWord() {
     const czechInput = document.getElementById('new-cs');
     const hebrewInput = document.getElementById('new-he');
     const btn = event?.target;
-    
+
     const czech = czechInput.value.trim();
     const hebrew = hebrewInput.value.trim();
-    
+
     if (!czech || !hebrew) {
         alert('מלא את כל השדות');
         return;
     }
-    
+
+    // בדיקה חדשה: האם יש משתמש מחובר?
+    if (!currentUser) {
+        alert('עליך להתחבר כדי להוסיף מילים');
+        return;
+    }
+
     if (btn) btn.disabled = true;
-    
+
     try {
         const { data, error } = await _supabase
             .from('vocabulary')
-            .insert([{ czech, hebrew }]);
-        
+            .insert([{
+                czech,
+                hebrew,
+                user_id: currentUser.id  // שומר את מזהה המשתמש
+            }]);
+
         if (error) throw error;
-        
+
         czechInput.value = '';
         hebrewInput.value = '';
         await fetchWords();
@@ -102,20 +126,20 @@ function closeEditModal() {
 async function saveEditWord() {
     const czech = document.getElementById('edit-cs').value.trim();
     const hebrew = document.getElementById('edit-he').value.trim();
-    
+
     if (!czech || !hebrew) {
         alert('מלא את כל השדות');
         return;
     }
-    
+
     try {
         const { error } = await _supabase
             .from('vocabulary')
             .update({ czech, hebrew })
             .eq('id', currentEditingId);
-        
+
         if (error) throw error;
-        
+
         closeEditModal();
         await fetchWords();
     } catch (error) {
@@ -130,9 +154,9 @@ async function deleteWord(id) {
             .from('vocabulary')
             .delete()
             .eq('id', id);
-        
+
         if (error) throw error;
-        
+
         await fetchWords();
     } catch (error) {
         alert('שגיאה במחיקה: ' + (error.message || error));
@@ -165,10 +189,10 @@ function updateSort() {
 function renderTable() {
     const tbody = document.getElementById('words-tbody');
     tbody.innerHTML = '';
-    
+
     // ensure sorted before rendering
     applySort();
-    
+
     wordsData.forEach(word => {
         const safeCzech = (word.czech || '').replace(/'/g, "\\'");
         const safeHeb = (word.hebrew || '').replace(/'/g, "\\'");
@@ -195,17 +219,17 @@ function renderTable() {
 function searchWord() {
     const query = document.getElementById('search-input').value.trim().toLowerCase();
     const resultDiv = document.getElementById('search-result');
-    
+
     if (!query) {
         resultDiv.textContent = '';
         return;
     }
-    
+
     const found = wordsData.find(word =>
         (word.czech || '').toLowerCase().includes(query) ||
         (word.hebrew || '').toLowerCase().includes(query)
     );
-    
+
     if (found) {
         resultDiv.textContent = `נמצא: ${found.czech} = ${found.hebrew}`;
     } else {
@@ -219,18 +243,18 @@ function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
-    
+
     // Remove active from all buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
-    
+
     // Add active to clicked button
     if (event && event.target) event.target.classList.add('active');
-    
+
     // Initialize game if game tab
     if (tabName === 'game') {
         showDifficultySelector();
@@ -240,7 +264,7 @@ function showTab(tabName) {
 // Show difficulty selector
 function showDifficultySelector() {
     const container = document.getElementById('game-container');
-    
+
     if (wordsData.length < 4) {
         container.innerHTML = `
             <div class="error-message">
@@ -249,7 +273,7 @@ function showDifficultySelector() {
         `;
         return;
     }
-    
+
     const maxCards = Math.min(wordsData.length, 50);
     let difficultyHTML = `
         <div class="difficulty-section">
@@ -257,7 +281,7 @@ function showDifficultySelector() {
             <p>כמה כרטיסיות תרצה לשחק?</p>
             <div class="difficulty-buttons">
     `;
-    
+
     const options = [4, 5, 10, 15, 20];
     options.forEach(option => {
         if (option <= maxCards) {
@@ -269,7 +293,7 @@ function showDifficultySelector() {
             `;
         }
     });
-    
+
     if (maxCards > 20) {
         difficultyHTML += `
             <button class="difficulty-btn ${maxCards === selectedDifficulty ? 'selected' : ''}" 
@@ -278,12 +302,12 @@ function showDifficultySelector() {
             </button>
         `;
     }
-    
+
     difficultyHTML += `
             </div>
         </div>
     `;
-    
+
     container.innerHTML = difficultyHTML;
 }
 
@@ -309,7 +333,7 @@ function shuffle(array) {
 // Initialize game
 async function initGame() {
     gameInProgress = true;
-    
+
     if (wordsData.length < 4) {
         const container = document.getElementById('game-container');
         container.innerHTML = `
@@ -320,7 +344,7 @@ async function initGame() {
         gameInProgress = false;
         return;
     }
-    
+
     // choose unique random words for the game stack
     const pool = shuffle(wordsData);
     const take = Math.min(selectedDifficulty, pool.length);
@@ -329,26 +353,26 @@ async function initGame() {
     correctCount = 0;
     wrongCount = 0;
     updateScoreboard();
-    
+
     startNewRound();
 }
 
 // Start new round
 function startNewRound() {
     clearTimeout(autoNextTimer);
-    
+
     if (currentWordIndex >= gameStack.length) {
         showSummary();
         return;
     }
-    
+
     const currentWord = gameStack[currentWordIndex];
     const container = document.getElementById('game-container');
-    
+
     // select 3 distinct wrong answers (no duplicates)
     const wrongPool = shuffle(wordsData.filter(w => w.id !== currentWord.id));
     let wrongAnswers = wrongPool.slice(0, 3);
-    
+
     // If not enough distinct wrong answers, fill by repeating from pool but prefer distinct
     if (wrongAnswers.length < 3) {
         let i = 0;
@@ -360,15 +384,15 @@ function startNewRound() {
             i++;
         }
     }
-    
+
     let answers = [
         { hebrew: currentWord.hebrew, correct: true },
         ...wrongAnswers.map(w => ({ hebrew: w.hebrew, correct: false }))
     ];
     answers = shuffle(answers);
-    
+
     const progressPercentage = ((currentWordIndex + 1) / gameStack.length * 100).toFixed(0);
-    
+
     container.innerHTML = `
         <div class="game-progress">
             <div class="progress-bar">
@@ -382,7 +406,7 @@ function startNewRound() {
             ➡️ למילה הבאה ➡️
         </button>
     `;
-    
+
     const optionsGrid = document.getElementById('options-grid');
     answers.forEach(answer => {
         const btn = document.createElement('button');
@@ -396,28 +420,28 @@ function startNewRound() {
 // Handle answer
 function handleAnswer(btn, isCorrect, currentWord) {
     document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-    
+
     if (isCorrect) {
         btn.classList.add('correct');
         correctCount++;
     } else {
         btn.classList.add('wrong');
-        
+
         // Show correct answer in light green until next
         document.querySelectorAll('.option-btn').forEach(b => {
             if (b.textContent === currentWord.hebrew) {
                 b.classList.add('correct-shown');
             }
         });
-        
+
         wrongCount++;
     }
-    
+
     updateScoreboard();
-    
+
     const nextBtn = document.getElementById('next-btn');
     nextBtn.style.display = 'block';
-    
+
     // Auto-next after 2.5 seconds
     autoNextTimer = setTimeout(() => {
         nextRound();
@@ -434,10 +458,10 @@ function nextRound() {
 // Show summary
 function showSummary() {
     const container = document.getElementById('game-container');
-    const accuracy = gameStack.length > 0 
+    const accuracy = gameStack.length > 0
         ? ((correctCount / gameStack.length) * 100).toFixed(1)
         : 0;
-    
+
     container.innerHTML = `
         <div class="game-summary">
             <h2>🎉 סיימת!</h2>
@@ -459,9 +483,160 @@ function updateScoreboard() {
 }
 
 // Close modal when clicking outside
-window.onclick = function(event) {
+window.onclick = function (event) {
     const modal = document.getElementById('editModal');
     if (event.target == modal) {
         closeEditModal();
     }
+}
+
+// ============================================
+// AUTHENTICATION SECTION
+// ============================================
+
+let currentUser = null;
+
+// ------- Helpers -------
+function showAuthMessage(msg, isError = false) {
+    const authMessages = document.getElementById('auth-messages');
+    if (authMessages) {
+        authMessages.textContent = msg;
+        authMessages.style.color = isError ? 'var(--danger)' : 'var(--success)';
+        authMessages.style.padding = '10px';
+        authMessages.style.marginTop = '10px';
+        authMessages.style.borderRadius = '5px';
+        authMessages.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+    }
+}
+
+// ------- Auth functions -------
+async function signUp(email, password) {
+    try {
+        const { data, error } = await _supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        showAuthMessage('נשלחה הודעת אימות אם נדרשת. בדוק את המייל.');
+        return data;
+    } catch (error) {
+        showAuthMessage(error.message, true);
+        return null;
+    }
+}
+
+async function signIn(email, password) {
+    try {
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showAuthMessage('התחברת בהצלחה');
+        return data;
+    } catch (error) {
+        showAuthMessage(error.message, true);
+        return null;
+    }
+}
+
+async function signInWithProvider(provider) {
+    try {
+        const { data, error } = await _supabase.auth.signInWithOAuth({ provider });
+        if (error) throw error;
+        return { data, error };
+    } catch (error) {
+        showAuthMessage(error.message, true);
+        return { data: null, error };
+    }
+}
+
+async function signOutUser() {
+    try {
+        const { error } = await _supabase.auth.signOut();
+        if (error) throw error;
+        showAuthMessage('התנתקת בהצלחה');
+        currentUser = null;
+    } catch (error) {
+        showAuthMessage(error.message, true);
+    }
+}
+
+// ------- UI update -------
+function updateUIForUser(user) {
+    currentUser = user;
+    const userInfo = document.getElementById('user-info');
+    const authForms = document.getElementById('auth-forms');
+    const userEmail = document.getElementById('user-email');
+
+    if (user) {
+        if (userInfo) userInfo.style.display = 'block';
+        if (authForms) authForms.style.display = 'none';
+        if (userEmail) userEmail.textContent = `משתמש: ${user.email || 'לא ידוע'}`;
+    } else {
+        if (userInfo) userInfo.style.display = 'none';
+        if (authForms) authForms.style.display = 'block';
+        if (userEmail) userEmail.textContent = '';
+    }
+}
+
+// ------- Session handling -------
+async function checkAuthSession() {
+    try {
+        const { data } = await _supabase.auth.getSession();
+        const session = data?.session ?? null;
+        updateUIForUser(session?.user ?? null);
+    } catch (error) {
+        console.error('Auth session error:', error);
+    }
+}
+
+// ------- Initialize Auth Event Listeners -------
+function initializeAuthListeners() {
+    // Auth state change listener
+    _supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event, session);
+        updateUIForUser(session?.user ?? null);
+
+        // Refresh words when auth state changes
+        if (event === 'SIGNED_IN') {
+            fetchWords();
+        } else if (event === 'SIGNED_OUT') {
+            wordsData = [];
+            renderTable();
+        }
+    });
+
+    // Signup form
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            await signUp(email, password);
+        });
+    }
+
+    // Signin form
+    const signinForm = document.getElementById('signin-form');
+    if (signinForm) {
+        signinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            await signIn(email, password);
+        });
+    }
+
+    // Signout button
+    const signoutButton = document.getElementById('signout-button');
+    if (signoutButton) {
+        signoutButton.addEventListener('click', async () => {
+            await signOutUser();
+        });
+    }
+
+    // Provider buttons (GitHub, Google)
+    const providerButtons = document.querySelectorAll('.provider-btn');
+    providerButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const provider = e.currentTarget.dataset.provider;
+            signInWithProvider(provider);
+        });
+    });
 }

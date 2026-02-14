@@ -20,11 +20,11 @@ let sortOrder = 'asc';
 window.onload = async () => {
     try {
         _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+
         // Initialize authentication
         initializeAuthListeners();
         await checkAuthSession();
-        
+
         await fetchWords();
         // set default selects
         const langSelect = document.getElementById('sort-lang');

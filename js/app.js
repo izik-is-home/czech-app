@@ -643,4 +643,5 @@ function initializeAuthListeners() {
             signInWithProvider(provider);
         });
     });
+
 }

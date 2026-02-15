@@ -1,0 +1,124 @@
+/* Spelling Game */
+#spelling-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.spelling-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: var(--light);
+    border-radius: 8px;
+    border: 1px solid var(--gray);
+}
+
+.spelling-timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.spelling-score {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--success);
+}
+
+.scrambled-word {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+}
+
+.letter-box {
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.spelling-input-section {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.spelling-hint {
+    font-size: 1.2rem;
+    color: var(--dark);
+    margin-bottom: 15px;
+}
+
+#spelling-input {
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.feedback-correct {
+    animation: flashGreen 0.5s ease;
+    border-color: var(--success) !important;
+}
+
+.feedback-wrong {
+    animation: shakeRed 0.5s ease;
+    border-color: var(--danger) !important;
+}
+
+@keyframes flashGreen {
+    0% {
+        background-color: white;
+    }
+
+    50% {
+        background-color: var(--success-light);
+    }
+
+    100% {
+        background-color: white;
+    }
+}
+
+@keyframes shakeRed {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.spelling-intro {
+    padding: 40px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed var(--primary);
+}
+
+.spelling-intro h2 {
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.spelling-intro p {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+}

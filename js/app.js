@@ -386,10 +386,28 @@ function speakCzech(text) {
     if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'cs-CZ'; // Czech language code
+
+        // Try to select a female Czech voice
+        const voices = window.speechSynthesis.getVoices();
+        const czechVoice = voices.find(voice => 
+            voice.lang === 'cs-CZ' && (voice.name.includes('Zuzana') || voice.name.includes('Vlasta') || voice.name.includes('Google') || voice.name.toLowerCase().includes('female'))
+        ) || voices.find(voice => voice.lang === 'cs-CZ');
+
+        if (czechVoice) {
+            utterance.voice = czechVoice;
+        }
+
         window.speechSynthesis.speak(utterance);
     } else {
         console.warn('Text-to-speech not supported');
     }
+}
+
+// Preload voices to ensure they are ready when needed (Chrome quirk)
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
 }
 
 // Start new round

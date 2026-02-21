@@ -281,8 +281,6 @@ function showDifficultySelector() {
     const maxCards = Math.min(wordsData.length, 50);
     let difficultyHTML = `
         <div class="difficulty-section">
-            <h2>בחר קשיות</h2>
-            <p>כמה כרטיסיות תרצה לשחק?</p>
             <div class="difficulty-buttons">
     `;
 
@@ -292,7 +290,7 @@ function showDifficultySelector() {
             difficultyHTML += `
                 <button class="difficulty-btn ${option === selectedDifficulty ? 'selected' : ''}" 
                         onclick="startGameWithDifficulty(${option}, this)">
-                    ${option} כרטיסיות
+                    ${option}
                 </button>
             `;
         }
@@ -389,7 +387,7 @@ function speakCzech(text) {
 
         // Try to select a female Czech voice
         const voices = window.speechSynthesis.getVoices();
-        const czechVoice = voices.find(voice => 
+        const czechVoice = voices.find(voice =>
             voice.lang === 'cs-CZ' && (voice.name.includes('Zuzana') || voice.name.includes('Vlasta') || voice.name.includes('Google') || voice.name.toLowerCase().includes('female'))
         ) || voices.find(voice => voice.lang === 'cs-CZ');
 
@@ -604,6 +602,22 @@ async function signInWithProvider(provider) {
     }
 }
 
+async function resetPassword(email) {
+    if (!email) {
+        showAuthMessage('הכנס אימייל לשחזור', true);
+        return;
+    }
+    try {
+        const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.href,
+        });
+        if (error) throw error;
+        showAuthMessage('הוראות לשחזור סיסמה נשלחו למייל שלך');
+    } catch (error) {
+        showAuthMessage('שגיאה בשחזור סיסמה: ' + error.message, true);
+    }
+}
+
 async function signOutUser() {
     try {
         const { error } = await _supabase.auth.signOut();
@@ -702,6 +716,15 @@ function initializeAuthListeners() {
             signInWithProvider(provider);
         });
     });
+
+    // Reset Password button
+    const resetPasswordBtn = document.getElementById('reset-password-btn');
+    if (resetPasswordBtn) {
+        resetPasswordBtn.addEventListener('click', async () => {
+            const email = document.getElementById('signin-email').value;
+            await resetPassword(email);
+        });
+    }
 }
 
 // ============================================

@@ -12,7 +12,9 @@
 
 <body>
     <div class="container">
-        <div id="app-version" style="position: fixed; top: 10px; left: 10px; font-size: 0.8rem; color: #666; opacity: 0.7; z-index: 1000; font-family: sans-serif;">v1.0</div>
+        <div id="app-version"
+            style="position: fixed; top: 10px; left: 10px; font-size: 0.8rem; color: #666; opacity: 0.7; z-index: 1000; font-family: sans-serif;">
+            v1.1</div>
         <!-- Header -->
         <header>
             <h1>🇨🇿 מילון צ'כית חכם 🇮🇱</h1>
@@ -36,7 +38,11 @@
                     <h3>התחברות</h3>
                     <input type="email" id="signin-email" placeholder="Email" required />
                     <input type="password" id="signin-password" placeholder="Password" required />
-                    <button type="submit">התחבר</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" style="flex: 1;">התחבר</button>
+                        <button type="button" id="reset-password-btn" class="btn-secondary"
+                            style="flex: 1; padding: 12px; font-size: 1rem; border-radius: 6px;">שחזור סיסמה</button>
+                    </div>
                 </form>
 
                 <div id="social-login">

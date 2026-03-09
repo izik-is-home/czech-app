@@ -1,52 +1,60 @@
 /* Spelling Game */
 #spelling-container {
     text-align: center;
-    padding: 20px;
+    padding: 10px;
 }
 
 .spelling-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding: 15px;
-    background-color: var(--light);
-    border-radius: 8px;
+    background: var(--light);
+    border-radius: 12px;
     border: 1px solid var(--gray);
+    box-shadow: var(--shadow-sm);
 }
 
 .spelling-timer {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.4rem;
+    font-weight: 700;
     color: var(--primary);
 }
 
 .spelling-score {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.4rem;
+    font-weight: 700;
     color: var(--success);
 }
 
 .scrambled-word {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin: 40px 0;
+    margin: 30px 0;
 }
 
 .letter-box {
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     background-color: var(--primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 4px 0 var(--primary-dark);
+    transition: transform 0.1s;
+    cursor: pointer;
+}
+
+.letter-box:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 .spelling-input-section {
@@ -55,70 +63,69 @@
 }
 
 .spelling-hint {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    font-weight: 700;
     color: var(--dark);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 #spelling-input {
     font-size: 1.2rem;
     text-align: center;
     letter-spacing: 2px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--gray);
+    margin-bottom: 10px;
 }
 
-.feedback-correct {
-    animation: flashGreen 0.5s ease;
-    border-color: var(--success) !important;
-}
-
-.feedback-wrong {
-    animation: shakeRed 0.5s ease;
-    border-color: var(--danger) !important;
-}
-
-@keyframes flashGreen {
-    0% {
-        background-color: white;
-    }
-
-    50% {
-        background-color: var(--success-light);
-    }
-
-    100% {
-        background-color: white;
-    }
-}
-
-@keyframes shakeRed {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    25% {
-        transform: translateX(-5px);
-    }
-
-    75% {
-        transform: translateX(5px);
-    }
+#spelling-input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .spelling-intro {
-    padding: 40px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
+    padding: 30px;
+    background-color: var(--light);
+    border-radius: 20px;
     border: 2px dashed var(--primary);
 }
 
 .spelling-intro h2 {
     color: var(--primary);
-    margin-bottom: 15px;
+    font-family: 'Outfit', sans-serif;
+    margin-bottom: 10px;
 }
 
-.spelling-intro p {
-    font-size: 1.2rem;
-    margin-bottom: 25px;
-}
+/* Mobile Optimizations */
+@media (max-width: 600px) {
+    .spelling-header {
+        margin-bottom: 15px;
+        padding: 10px;
+    }
+
+    .spelling-timer, .spelling-score {
+        font-size: 1.1rem;
+    }
+
+    .scrambled-word {
+        margin: 15px 0;
+        gap: 6px;
+    }
+
+    .letter-box {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+
+    .spelling-hint {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+
+    .spelling-intro {
+        padding: 20px;
+    }
+}

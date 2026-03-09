@@ -251,13 +251,14 @@ function showTab(tabName) {
     // Remove active from all buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
+        // If the button's onclick attribute contains the tabName, mark it active
+        if (btn.getAttribute('onclick').includes(`'${tabName}'`)) {
+            btn.classList.add('active');
+        }
     });
 
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
-
-    // Add active to clicked button
-    if (event && event.target) event.target.classList.add('active');
 
     // Initialize game if game tab
     if (tabName === 'game') {
@@ -445,22 +446,24 @@ function startNewRound() {
     const progressPercentage = ((currentWordIndex + 1) / gameStack.length * 100).toFixed(0);
 
     container.innerHTML = `
-        <div class="game-progress">
-            <div class="memory-timer" style="font-size: 1.2rem; font-weight: bold; color: var(--primary); margin-bottom: 5px;">
-                ⏱️ זמן: <span id="memory-timer-display">00:00</span>
+        <div class="game-play-area">
+            <div class="game-progress">
+                <div class="memory-timer" style="font-size: 1.1rem; font-weight: bold; color: var(--primary); margin-bottom: 2px;">
+                    ⏱️ זמן: <span id="memory-timer-display">00:00</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                </div>
+                <span class="progress-text">${currentWordIndex + 1} / ${gameStack.length}</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+            <div class="game-card" onclick="speakCzech('${currentWord.czech.replace(/'/g, "\\'")}')" style="cursor: pointer; position: relative;">
+                ${currentWord.czech} <span style="font-size: 1.2rem; position: absolute; right: 10px; top: 10px;">🔊</span>
             </div>
-            <span class="progress-text">${currentWordIndex + 1} / ${gameStack.length}</span>
+            <div class="options-grid" id="options-grid"></div>
+            <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none;">
+                ➡️ למילה הבאה ➡️
+            </button>
         </div>
-        <div class="game-card" onclick="speakCzech('${currentWord.czech.replace(/'/g, "\\'")}')" style="cursor: pointer; position: relative;">
-            ${currentWord.czech} <span style="font-size: 1.5rem; position: absolute; right: 10px; top: 10px;">🔊</span>
-        </div>
-        <div class="options-grid" id="options-grid"></div>
-        <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none;">
-            ➡️ למילה הבאה ➡️
-        </button>
     `;
 
     const optionsGrid = document.getElementById('options-grid');

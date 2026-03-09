@@ -61,8 +61,11 @@
 
         <!-- Tabs Navigation -->
         <nav class="tabs">
+            <button class="tab-btn" onclick="showTab('search')">
+                🔍 חיפוש
+            </button>
             <button class="tab-btn active" onclick="showTab('dictionary')">
-                📚 ניהול מילים
+                📚 מילון
             </button>
             <button class="tab-btn" onclick="showTab('game')">
                 🎮 משחק זיכרון
@@ -72,13 +75,17 @@
             </button>
         </nav>
 
-        <!-- Tab 1: Dictionary Management -->
-        <section id="dictionary" class="tab-content active">
+        <!-- Tab 0: Search -->
+        <section id="search" class="tab-content">
             <!-- Search Box -->
             <div class="search-section">
                 <input type="text" id="search-input" placeholder="חפש מילה בעברית או בצ'כית..." oninput="searchWord()">
                 <div id="search-result" class="search-result"></div>
             </div>
+        </section>
+
+        <!-- Tab 1: Dictionary Management -->
+        <section id="dictionary" class="tab-content active">
 
             <!-- Sort Controls -->
             <div class="sort-controls">

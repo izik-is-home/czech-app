@@ -243,6 +243,11 @@ function searchWord() {
 
 // Show tab
 function showTab(tabName) {
+    // Also close edit modal if open
+    if (typeof closeEditModal === 'function') {
+        closeEditModal();
+    }
+
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');

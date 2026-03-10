@@ -20,6 +20,10 @@ let sortOrder = 'asc';
 let memoryTimer;
 let memoryStartTime;
 
+// Swipe Support
+let touchStartX = 0;
+let touchEndX = 0;
+
 // Initialize
 window.onload = async () => {
     try {
@@ -63,6 +67,7 @@ async function fetchWords() {
         // default: sort ascending by czech
         applySort();
         renderTable();
+        updateGamification();
     } catch (error) {
         console.error('שגיאה בטעינת מילים:', error);
         alert('שגיאה בטעינת מילים: ' + (error.message || error));
@@ -105,6 +110,7 @@ async function addWord() {
         czechInput.value = '';
         hebrewInput.value = '';
         await fetchWords();
+        updateGamification();
     } catch (error) {
         alert('שגיאה: ' + (error.message || error));
     } finally {
@@ -162,6 +168,7 @@ async function deleteWord(id) {
         if (error) throw error;
 
         await fetchWords();
+        updateGamification();
     } catch (error) {
         alert('שגיאה במחיקה: ' + (error.message || error));
     }
@@ -264,6 +271,10 @@ function showTab(tabName) {
 
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
+
+    if (tabName === 'home') {
+        updateGamification();
+    }
 
     // Initialize game if game tab
     if (tabName === 'game') {
@@ -452,24 +463,48 @@ function startNewRound() {
 
     container.innerHTML = `
         <div class="game-play-area">
-            <div class="game-progress">
-                <div class="memory-timer" style="font-size: 1.1rem; font-weight: bold; color: var(--primary); margin-bottom: 2px;">
-                    ⏱️ זמן: <span id="memory-timer-display">00:00</span>
+            <div class="game-header-area">
+                <div class="game-progress">
+                    <div class="memory-timer" style="font-size: 1.1rem; font-weight: bold; color: var(--primary); margin-bottom: 2px;">
+                        ⏱️ זמן: <span id="memory-timer-display">00:00</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                    </div>
+                    <span class="progress-text">${currentWordIndex + 1} / ${gameStack.length}</span>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+            </div>
+            
+            <div class="game-card" id="game-card" onclick="toggleCardFlip('${currentWord.czech.replace(/'/g, "\\'")}')">
+                <div class="flip-card-inner">
+                    <div class="card-front">
+                        <span>${currentWord.czech}</span>
+                        <span style="font-size: 1rem; position: absolute; right: 10px; top: 10px;">🔊 (לחץ להקלטה)</span>
+                        <span style="font-size: 0.8rem; position: absolute; bottom: 10px; width:100%; text-align:center; opacity:0.6;">הקלק להיפוך</span>
+                    </div>
+                    <div class="card-back">
+                        <span>${currentWord.hebrew}</span>
+                    </div>
                 </div>
-                <span class="progress-text">${currentWordIndex + 1} / ${gameStack.length}</span>
             </div>
-            <div class="game-card" onclick="speakCzech('${currentWord.czech.replace(/'/g, "\\'")}')" style="cursor: pointer; position: relative;">
-                ${currentWord.czech} <span style="font-size: 1.2rem; position: absolute; right: 10px; top: 10px;">🔊</span>
-            </div>
+
             <div class="options-grid" id="options-grid"></div>
-            <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none;">
-                ➡️ למילה הבאה ➡️
-            </button>
+            
+            <div class="game-actions" style="margin-top: 20px;">
+                <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none; width: 100%;">
+                    ➡️ למילה הבאה ➡️
+                </button>
+            </div>
         </div>
     `;
+
+    // Add touch listeners for swipe
+    const card = document.getElementById('game-card');
+    card.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    card.addEventListener('touchend', e => { 
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, {passive: true});
 
     const optionsGrid = document.getElementById('options-grid');
     answers.forEach(answer => {
@@ -481,20 +516,43 @@ function startNewRound() {
     });
 }
 
+function toggleCardFlip(text) {
+    const card = document.getElementById('game-card');
+    card.classList.toggle('flipped');
+    if (!card.classList.contains('flipped')) {
+        speakCzech(text);
+    }
+}
+
+function handleSwipe() {
+    if (touchEndX < touchStartX - 50) {
+        // Swipe left - can be used for "Next" if answer is correct or shown
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn && nextBtn.style.display !== 'none') {
+            nextRound();
+        }
+    }
+}
+
 // Handle answer
 function handleAnswer(btn, isCorrect, currentWord) {
     document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
 
     if (isCorrect) {
         btn.classList.add('correct');
+        btn.classList.add('pulse-green');
         correctCount++;
+        playSound('correct');
     } else {
         btn.classList.add('wrong');
+        btn.classList.add('shake');
+        playSound('wrong');
 
-        // Show correct answer in light green until next
+        // Show correct answer
         document.querySelectorAll('.option-btn').forEach(b => {
             if (b.textContent === currentWord.hebrew) {
-                b.classList.add('correct-shown');
+                b.classList.add('correct');
+                b.style.opacity = "0.7";
             }
         });
 
@@ -528,23 +586,72 @@ function showSummary() {
 
     container.innerHTML = `
         <div class="game-summary">
-            <h2>🎉 סיימת!</h2>
-            <p>מילים: <strong>${gameStack.length}</strong></p>
+            <h2>🎉 כל הכבוד!</h2>
+            <p>מילים שתרגלת: <strong>${gameStack.length}</strong></p>
             <p>תשובות נכונות: <strong>${correctCount}</strong></p>
             <p>תשובות שגויות: <strong>${wrongCount}</strong></p>
-            <p>דיוק: <strong>${accuracy}%</strong></p>
+            <p>אחוזי דיוק: <strong>${accuracy}%</strong></p>
             <p>זמן כולל: <strong>${stopMemoryTimer()}</strong></p>
-            <button class="btn btn-primary" onclick="showDifficultySelector()" style="margin-top: 20px;">
+            <button class="btn btn-primary" onclick="showDifficultySelector()">
                 שחק שוב 🔄
             </button>
         </div>
     `;
 }
 
+// ============================================
+// GAMIFICATION & UX HELPERS
+// ============================================
+
+function updateGamification() {
+    const totalWords = wordsData.length;
+    const totalWordsEl = document.getElementById('total-words-learned');
+    const progressFill = document.getElementById('total-progress-fill');
+
+    if (totalWordsEl) totalWordsEl.textContent = totalWords;
+    
+    if (progressFill) {
+        // Goal of 100 words for the progress bar
+        const percentage = Math.min((totalWords / 100) * 100, 100);
+        progressFill.style.width = `${percentage}%`;
+    }
+}
+
 // Update scoreboard
 function updateScoreboard() {
     document.getElementById('correctCount').textContent = correctCount;
     document.getElementById('wrongCount').textContent = wrongCount;
+}
+
+// ============================================
+// AUDIO FEEDBACK HELPERS
+// ============================================
+
+function playSound(type) {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+    } else if (type === 'wrong') {
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+        oscillator.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.2); // A2
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.4);
+    }
 }
 
 // Close modal when clicking outside

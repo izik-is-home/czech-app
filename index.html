@@ -14,13 +14,13 @@
     <div class="container">
         <div id="app-version"
             style="position: fixed; top: 10px; left: 10px; font-size: 0.8rem; color: #666; opacity: 0.7; z-index: 1000; font-family: sans-serif;">
-            v1.1</div>
+            v1.3</div>
         <!-- Header -->
         <header>
             <h1>🇨🇿 מילון צ'כית חכם 🇮🇱</h1>
             <div class="scoreboard">
-                <span class="score-item correct">נכונות: <span id="correctCount">0</span></span>
-                <span class="score-item wrong">שגויות: <span id="wrongCount">0</span></span>
+                <span class="score-item correct"><span>נכונות:</span> <span id="correctCount">0</span></span>
+                <span class="score-item wrong"><span>שגויות:</span> <span id="wrongCount">0</span></span>
             </div>
         </header>
 
@@ -31,7 +31,7 @@
                     <h3>הרשמה</h3>
                     <input type="email" id="signup-email" placeholder="Email" required />
                     <input type="password" id="signup-password" placeholder="Password" required minlength="6" />
-                    <button type="submit">הרשם</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">הרשם</button>
                 </form>
 
                 <form id="signin-form">
@@ -39,21 +39,21 @@
                     <input type="email" id="signin-email" placeholder="Email" required />
                     <input type="password" id="signin-password" placeholder="Password" required />
                     <div style="display: flex; gap: 10px;">
-                        <button type="submit" style="flex: 1;">התחבר</button>
-                        <button type="button" id="reset-password-btn" class="btn-secondary"
-                            style="flex: 1; padding: 12px; font-size: 1rem; border-radius: 6px;">שחזור סיסמה</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">התחבר</button>
+                        <button type="button" id="reset-password-btn" class="btn btn-secondary"
+                            style="flex: 1;">שחזור סיסמה</button>
                     </div>
                 </form>
 
                 <div id="social-login">
-                    <button data-provider="github" class="provider-btn">התחבר עם GitHub</button>
-                    <button data-provider="google" class="provider-btn">התחבר עם Google</button>
+                    <button data-provider="github" class="provider-btn btn">התחבר עם GitHub</button>
+                    <button data-provider="google" class="provider-btn btn">התחבר עם Google</button>
                 </div>
             </div>
 
             <div id="user-info" style="display:none;">
                 <p id="user-email"></p>
-                <button id="signout-button">התנתק</button>
+                <button id="signout-button" class="btn btn-secondary">התנתק</button>
             </div>
 
             <div id="auth-messages" aria-live="polite"></div>
@@ -61,19 +61,61 @@
 
         <!-- Tabs Navigation -->
         <nav class="tabs">
-            <button class="tab-btn" onclick="showTab('search')">
-                🔍 חיפוש
+            <button class="tab-btn active" onclick="showTab('home')">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-label">בית</span>
             </button>
-            <button class="tab-btn active" onclick="showTab('dictionary')">
-                📚 מילון
+            <button class="tab-btn" onclick="showTab('search')">
+                <span class="tab-icon">🔍</span>
+                <span class="tab-label">חיפוש</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('dictionary')">
+                <span class="tab-icon">📚</span>
+                <span class="tab-label">מילון</span>
             </button>
             <button class="tab-btn" onclick="showTab('game')">
-                🎮 משחק זיכרון
+                <span class="tab-icon">🎮</span>
+                <span class="tab-label">זיכרון</span>
             </button>
             <button class="tab-btn" onclick="showTab('spelling')">
-                ✍️ משחק איות
+                <span class="tab-icon">✍️</span>
+                <span class="tab-label">איות</span>
             </button>
         </nav>
+
+        <!-- Tab: Home / Dashboard -->
+        <section id="home" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="dashboard-card" onclick="showTab('search')">
+                    <div class="card-icon">🔍</div>
+                    <div class="card-title">חיפוש מהיר</div>
+                    <div class="card-desc">מצא תרגום לצ'כית או עברית ברגע</div>
+                </div>
+                <div class="dashboard-card" onclick="showTab('dictionary')">
+                    <div class="card-icon">📚</div>
+                    <div class="card-title">המילון שלי</div>
+                    <div class="card-desc">נהל וצפה בכל המילים שלמדת</div>
+                </div>
+                <div class="dashboard-card" onclick="showTab('game')">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-title">משחק זיכרון</div>
+                    <div class="card-desc">תרגל את הזיכרון שלך עם כרטיסיות</div>
+                </div>
+                <div class="dashboard-card" onclick="showTab('spelling')">
+                    <div class="card-icon">✍️</div>
+                    <div class="card-title">אימון איות</div>
+                    <div class="card-desc">שפר את יכולת הכתיבה שלך בצ'כית</div>
+                </div>
+            </div>
+            
+            <div class="gamification-status" style="margin-top: 30px; text-align: center;">
+                <h3>התקדמות הלמידה שלך</h3>
+                <div class="progress-bar" style="height: 12px; margin: 15px 0;">
+                    <div id="total-progress-fill" class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <p><span id="total-words-learned">0</span> מילים במילון האישי</p>
+            </div>
+        </section>
 
         <!-- Tab 0: Search -->
         <section id="search" class="tab-content">
@@ -85,7 +127,7 @@
         </section>
 
         <!-- Tab 1: Dictionary Management -->
-        <section id="dictionary" class="tab-content active">
+        <section id="dictionary" class="tab-content">
 
             <!-- Sort Controls -->
             <div class="sort-controls">

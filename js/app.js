@@ -886,14 +886,14 @@ function startSpellingGame() {
         <div id="scrambled-word" class="scrambled-word"></div>
         
         <div class="spelling-input-section">
-            <div style="position: relative; display: flex; align-items: center; gap: 5px;">
-                <input type="text" id="spelling-input" placeholder="הקלד או לחץ על האותיות..." autocomplete="off" style="flex: 1;">
-                <button class="btn btn-secondary" onclick="deleteLastChar()" title="מחק תו אחרון">⌫</button>
-                <button class="btn btn-danger" onclick="clearSpellingInput()" title="נקה הכל">🗑️</button>
+            <div class="spelling-input-row">
+                <input type="text" id="spelling-input" placeholder="הקלד או לחץ על האותיות..." autocomplete="off">
+                <button class="btn btn-icon" onclick="deleteLastChar()" title="מחק תו אחרון">⌫</button>
+                <button class="btn btn-icon" onclick="clearSpellingInput()" title="נקה הכל">🗑️</button>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn btn-primary" onclick="checkSpellingAnswer()" style="flex: 1;">בדיקה ✅</button>
-                <button class="btn btn-danger" onclick="skipSpellingWord()" style="flex: 1;">דלג ⏭️</button>
+            <div class="spelling-action-row">
+                <button class="btn btn-primary" onclick="checkSpellingAnswer()">בדיקה ✅</button>
+                <button class="btn btn-skip" onclick="skipSpellingWord()">דלג ⏭️</button>
             </div>
         </div>
         <div id="spelling-feedback" style="height: 20px; color: red; margin-top: 5px;"></div>

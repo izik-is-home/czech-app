@@ -128,4 +128,70 @@
     .spelling-intro {
         padding: 20px;
     }
-}
+}
+/* Input row: text field + icon buttons - fixes mobile overflow */
+.spelling-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.spelling-input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-icon {
+    padding: 10px;
+    font-size: 1rem;
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    min-width: 44px;
+    max-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spelling-action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.spelling-action-row .btn {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-skip {
+    background: #D71B3B;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 0 #a00f26;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-skip:hover {
+    background: #b8102f;
+    transform: translateY(-2px);
+}
+
+.btn-skip:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}

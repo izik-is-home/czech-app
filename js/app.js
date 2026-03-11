@@ -475,16 +475,12 @@ function startNewRound() {
                 </div>
             </div>
             
-            <div class="game-card" id="game-card" onclick="toggleCardFlip('${currentWord.czech.replace(/'/g, "\\'")}')">
-                <div class="flip-card-inner">
-                    <div class="card-front">
-                        <span>${currentWord.czech}</span>
-                        <span style="font-size: 1rem; position: absolute; right: 10px; top: 10px;">🔊 (לחץ להקלטה)</span>
-                        <span style="font-size: 0.8rem; position: absolute; bottom: 10px; width:100%; text-align:center; opacity:0.6;">הקלק להיפוך</span>
-                    </div>
-                    <div class="card-back">
-                        <span>${currentWord.hebrew}</span>
-                    </div>
+            <div class="game-card" id="game-card">
+                <div class="card-content">
+                    <span class="czech-word">${currentWord.czech}</span>
+                    <button class="speaker-btn" onclick="speakCzech('${currentWord.czech.replace(/'/g, "\\'")}')" title="שמע הגייה">
+                        🔊
+                    </button>
                 </div>
             </div>
 
@@ -517,11 +513,8 @@ function startNewRound() {
 }
 
 function toggleCardFlip(text) {
-    const card = document.getElementById('game-card');
-    card.classList.toggle('flipped');
-    if (!card.classList.contains('flipped')) {
-        speakCzech(text);
-    }
+    // Flip logic removed in v1.4 as per user request
+    speakCzech(text);
 }
 
 function handleSwipe() {
@@ -586,14 +579,31 @@ function showSummary() {
 
     container.innerHTML = `
         <div class="game-summary">
-            <h2>🎉 כל הכבוד!</h2>
-            <p>מילים שתרגלת: <strong>${gameStack.length}</strong></p>
-            <p>תשובות נכונות: <strong>${correctCount}</strong></p>
-            <p>תשובות שגויות: <strong>${wrongCount}</strong></p>
-            <p>אחוזי דיוק: <strong>${accuracy}%</strong></p>
-            <p>זמן כולל: <strong>${stopMemoryTimer()}</strong></p>
+            <h2>🏆 כל הכבוד!</h2>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <span class="stat-label">מילים שתרגלת</span>
+                    <span class="stat-value">${gameStack.length}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">תשובות נכונות</span>
+                    <span class="stat-value correct">${correctCount}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">תשובות שגויות</span>
+                    <span class="stat-value wrong">${wrongCount}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">אחוזי דיוק</span>
+                    <span class="stat-value">${accuracy}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">זמן כולל</span>
+                    <span class="stat-value">${stopMemoryTimer()}</span>
+                </div>
+            </div>
             <button class="btn btn-primary" onclick="showDifficultySelector()">
-                שחק שוב 🔄
+                🔄 שחק שוב
             </button>
         </div>
     `;
@@ -881,7 +891,10 @@ function startSpellingGame() {
                 <button class="btn btn-secondary" onclick="deleteLastChar()" title="מחק תו אחרון">⌫</button>
                 <button class="btn btn-danger" onclick="clearSpellingInput()" title="נקה הכל">🗑️</button>
             </div>
-            <button class="btn btn-primary" onclick="checkSpellingAnswer()" style="margin-top: 10px; width: 100%;">בדיקה ✅</button>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-primary" onclick="checkSpellingAnswer()" style="flex: 1;">בדיקה ✅</button>
+                <button class="btn btn-danger" onclick="skipSpellingWord()" style="flex: 1;">דלג ⏭️</button>
+            </div>
         </div>
         <div id="spelling-feedback" style="height: 20px; color: red; margin-top: 5px;"></div>
     `;
@@ -913,9 +926,10 @@ function startSpellingGame() {
 function nextSpellingRound() {
     if (!spellingGameActive) return;
 
-    // Pick random word
-    const randomIndex = Math.floor(Math.random() * wordsData.length);
-    currentSpellingWord = wordsData[randomIndex];
+    // Pick random word (different from current if skipping/next)
+    const pool = wordsData.filter(w => !currentSpellingWord || w.id !== currentSpellingWord.id);
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    currentSpellingWord = pool[randomIndex];
 
     // Update Hint
     document.getElementById('s-hint').textContent = `תרגום: ${currentSpellingWord.hebrew}`;

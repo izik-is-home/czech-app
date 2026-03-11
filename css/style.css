@@ -154,30 +154,20 @@ header h1 {
     transform: translateY(-2px);
 }
 
-/* Mobile Bottom Navigation */
+/* Mobile Navigation - Now flows under user info */
 @media (max-width: 600px) {
     .tabs {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin-bottom: 0;
-        background: var(--glass);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        padding: 10px 15px 25px 15px; /* Extra bottom padding for home indicator */
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-        z-index: 2000;
-        gap: 4px;
+        margin-bottom: 20px;
+        order: -1; /* For flex layout if needed */
+        border-radius: var(--radius-md);
     }
 
     .tab-btn {
-        font-size: 0.75rem;
-        padding: 8px 4px;
+        font-size: 0.85rem;
+        padding: 10px 4px;
     }
 
-    /* Difficulty Selector Improvements */
+/* Difficulty Selector Improvements - GLOBAL */
 .difficulty-section {
     text-align: center;
     padding: 30px 15px;
@@ -192,12 +182,12 @@ header h1 {
 }
 
 .difficulty-btn {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 800;
     border-radius: 16px;
     border: 3px solid var(--primary-light);
@@ -223,7 +213,7 @@ header h1 {
     box-shadow: var(--shadow-md);
 }
     .container {
-        padding-bottom: 100px; /* Space for bottom nav */
+        padding-bottom: 40px; 
         margin: 0;
         border-radius: 0;
         min-height: 100vh;
@@ -417,24 +407,21 @@ header h1 {
 .game-card {
     background: var(--white);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 30px;
     margin: 25px auto;
-    font-size: 2.8rem; /* Larger font for main word */
+    font-size: 3.5rem; /* Larger font for main word */
     font-weight: 800;
     color: var(--primary);
     box-shadow: var(--shadow-lg);
-    min-height: 220px;
-    max-width: 400px;
+    min-height: 250px;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    perspective: 1000px;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
     position: relative;
     text-align: center;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .game-card:hover {
@@ -455,18 +442,34 @@ header h1 {
 }
 
 .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-.pulse-green { animation: pulse-green 0.6s ease-out both; }
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    max-width: 500px;
+    margin: 25px auto;
+    padding: 0 10px;
+    width: 100%;
+    justify-content: center;
+}
 
 .option-btn {
-    padding: 16px;
+    padding: 18px;
+    min-height: 80px; 
+    width: 100%; 
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 700;
     background: var(--white);
-    border: 2px solid rgba(0,0,0,0.05);
+    border: 2px solid rgba(0,0,0,0.1);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     transition: all 0.2s;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
 }
 
 .option-btn:hover:not(:disabled) {
@@ -588,12 +591,88 @@ header h1 {
 .btn-edit { background: var(--primary-light); color: white; padding: 8px 12px; font-size: 0.85rem; }
 .btn-danger { background: var(--secondary); color: white; padding: 8px 12px; font-size: 0.85rem; }
 
-/* Dashboard Grid */
-.dashboard-grid {
+/* Game Summary Screen v1.4 */
+.game-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 30px;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.5s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.game-summary h2 {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 30px;
+    font-weight: 800;
+}
+
+.summary-stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 20px;
-    margin-top: 10px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.stat-value.correct { color: var(--success); }
+.stat-value.wrong { color: var(--secondary); }
+
+.game-summary .btn {
+    padding: 16px 50px;
+    font-size: 1.3rem;
+    border-radius: 50px;
+}
+
+/* Speaker Button */
+.speaker-btn {
+    background: var(--primary-light);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-md);
+}
+
+.speaker-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary);
 }
 
 .dashboard-card {

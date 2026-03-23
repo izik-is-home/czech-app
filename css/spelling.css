@@ -1,0 +1,197 @@
+/* Spelling Game */
+#spelling-container {
+    text-align: center;
+    padding: 10px;
+}
+
+.spelling-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: var(--light);
+    border-radius: 12px;
+    border: 1px solid var(--gray);
+    box-shadow: var(--shadow-sm);
+}
+
+.spelling-timer {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.spelling-score {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--success);
+}
+
+.scrambled-word {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 30px 0;
+}
+
+.letter-box {
+    width: 45px;
+    height: 45px;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 4px 0 var(--primary-dark);
+    transition: transform 0.1s;
+    cursor: pointer;
+}
+
+.letter-box:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--primary-dark);
+}
+
+.spelling-input-section {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.spelling-hint {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 10px;
+}
+
+#spelling-input {
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 2px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--gray);
+    margin-bottom: 10px;
+}
+
+#spelling-input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.spelling-intro {
+    padding: 30px;
+    background-color: var(--light);
+    border-radius: 20px;
+    border: 2px dashed var(--primary);
+}
+
+.spelling-intro h2 {
+    color: var(--primary);
+    font-family: 'Outfit', sans-serif;
+    margin-bottom: 10px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 600px) {
+    .spelling-header {
+        margin-bottom: 15px;
+        padding: 10px;
+    }
+
+    .spelling-timer, .spelling-score {
+        font-size: 1.1rem;
+    }
+
+    .scrambled-word {
+        margin: 15px 0;
+        gap: 6px;
+    }
+
+    .letter-box {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+
+    .spelling-hint {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+
+    .spelling-intro {
+        padding: 20px;
+    }
+}
+/* Input row: text field + icon buttons - fixes mobile overflow */
+.spelling-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.spelling-input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-icon {
+    padding: 10px;
+    font-size: 1rem;
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    min-width: 44px;
+    max-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spelling-action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.spelling-action-row .btn {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-skip {
+    background: #D71B3B;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 0 #a00f26;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-skip:hover {
+    background: #b8102f;
+    transform: translateY(-2px);
+}
+
+.btn-skip:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}

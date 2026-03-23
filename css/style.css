@@ -428,6 +428,15 @@ header h1 {
     transform: scale(1.02);
 }
 
+/* Mobile adjustments for game card */
+@media (max-width: 600px) {
+    .game-card {
+        min-height: 150px;
+        padding: 20px;
+        font-size: 2.5rem;
+    }
+}
+
 /* Feedback Animations */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -488,6 +497,61 @@ header h1 {
     background-color: var(--secondary);
     color: white;
     border-color: var(--secondary);
+}
+
+/* Next button styling */
+.next-btn {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Highscores */
+.highscores-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.highscore-tab {
+    padding: 10px 20px;
+    background: var(--white);
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.highscore-tab.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.highscores-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.highscores-table th,
+.highscores-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.highscores-table th {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+}
+
+.highscores-table tr:nth-child(even) {
+    background: var(--bg-light);
 }
 
 /* Auth Section Modernized */

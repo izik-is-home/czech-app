@@ -14,7 +14,7 @@
     <div class="container">
         <div id="app-version"
             style="position: fixed; top: 12px; left: 15px; font-size: 0.9rem; color: var(--primary); font-weight: 700; opacity: 0.8; z-index: 3000; font-family: 'Outfit', sans-serif; background: var(--glass); padding: 4px 8px; border-radius: 8px;">
-            v1.5</div>
+            v1.6</div>
         <!-- Header -->
         <header>
             <h1>🇨🇿 מילון צ'כית חכם 🇮🇱</h1>
@@ -40,8 +40,8 @@
                     <input type="password" id="signin-password" placeholder="Password" required />
                     <div style="display: flex; gap: 10px;">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">התחבר</button>
-                        <button type="button" id="reset-password-btn" class="btn btn-secondary"
-                            style="flex: 1;">שחזור סיסמה</button>
+                        <button type="button" id="reset-password-btn" class="btn btn-secondary" style="flex: 1;">שחזור
+                            סיסמה</button>
                     </div>
                 </form>
 
@@ -81,6 +81,10 @@
                 <span class="tab-icon">✍️</span>
                 <span class="tab-label">איות</span>
             </button>
+            <button class="tab-btn" onclick="showTab('highscores')">
+                <span class="tab-icon">🏆</span>
+                <span class="tab-label">שיאים</span>
+            </button>
         </nav>
 
         <!-- Tab: Home / Dashboard -->
@@ -107,7 +111,7 @@
                     <div class="card-desc">שפר את יכולת הכתיבה שלך בצ'כית</div>
                 </div>
             </div>
-            
+
             <div class="gamification-status" style="margin-top: 30px; text-align: center;">
                 <h3>התקדמות הלמידה שלך</h3>
                 <div class="progress-bar" style="height: 12px; margin: 15px 0;">
@@ -196,6 +200,20 @@
                     </select>
                     <p>איית כמה שיותר מילים נכון!</p>
                     <button class="btn btn-primary" onclick="startSpellingGame()">התחל משחק 🏁</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Highscores -->
+        <section id="highscores" class="tab-content">
+            <div id="highscores-container">
+                <!-- Dynamic highscores content -->
+                <h2>טבלת שיאים</h2>
+                <div id="highscores-tabs">
+                    <!-- Tabs for games -->
+                </div>
+                <div id="highscores-content">
+                    <!-- Highscores table -->
                 </div>
             </div>
         </section>

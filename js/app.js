@@ -280,6 +280,11 @@ function showTab(tabName) {
     if (tabName === 'game') {
         showDifficultySelector();
     }
+
+    // Load highscores if highscores tab
+    if (tabName === 'highscores') {
+        loadHighscores();
+    }
 }
 
 // Show difficulty selector
@@ -487,7 +492,7 @@ function startNewRound() {
             <div class="options-grid" id="options-grid"></div>
             
             <div class="game-actions" style="margin-top: 20px;">
-                <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none; width: 100%;">
+                <button class="btn btn-primary next-btn" id="next-btn" onclick="nextRound()" style="display: none;">
                     ➡️ למילה הבאה ➡️
                 </button>
             </div>
@@ -572,6 +577,11 @@ function nextRound() {
 
 // Show summary
 function showSummary() {
+    // Save highscore
+    if (currentUser && correctCount > 0) {
+        saveHighscore(1, correctCount); // 1 for memory game
+    }
+
     const container = document.getElementById('game-container');
     const accuracy = gameStack.length > 0
         ? ((correctCount / gameStack.length) * 100).toFixed(1)
@@ -887,13 +897,13 @@ function startSpellingGame() {
         
         <div class="spelling-input-section">
             <div class="spelling-input-row">
-                <input type="text" id="spelling-input" placeholder="הקלד או לחץ על האותיות..." autocomplete="off">
+                <input type="text" id="spelling-input" placeholder="הקלד או לחץ על האותיות..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 <button class="btn btn-icon" onclick="deleteLastChar()" title="מחק תו אחרון">⌫</button>
                 <button class="btn btn-icon" onclick="clearSpellingInput()" title="נקה הכל">🗑️</button>
             </div>
             <div class="spelling-action-row">
-                <button class="btn btn-primary" onclick="checkSpellingAnswer()">בדיקה ✅</button>
-                <button class="btn btn-skip" onclick="skipSpellingWord()">דלג ⏭️</button>
+                <button class="btn btn-primary" onclick="checkSpellingAnswer()">בדיקה</button>
+                <button class="btn btn-skip" onclick="skipSpellingWord()">דלג</button>
             </div>
         </div>
         <div id="spelling-feedback" style="height: 20px; color: red; margin-top: 5px;"></div>
@@ -984,6 +994,11 @@ function checkSpellingAnswer() {
     }
 }
 
+function skipSpellingWord() {
+    if (!spellingGameActive) return;
+    nextSpellingRound();
+}
+
 function handleLetterClick(letter) {
     if (!spellingGameActive) return;
     const input = document.getElementById('spelling-input');
@@ -1007,6 +1022,11 @@ function endSpellingGame() {
     clearInterval(spellingTimer);
     spellingGameActive = false;
 
+    // Save highscore
+    if (currentUser && spellingScore > 0) {
+        saveHighscore(2, spellingScore); // 2 for spelling game
+    }
+
     const container = document.getElementById('spelling-container');
     container.innerHTML = `
         <div class="game-summary">
@@ -1015,4 +1035,121 @@ function endSpellingGame() {
             <button class="btn btn-primary" onclick="startSpellingGame()">שחק שוב 🔄</button>
         </div>
     `;
+}
+
+// Highscores functions
+async function loadHighscores() {
+    const container = document.getElementById('highscores-container');
+    container.innerHTML = `
+        <h2>טבלת שיאים</h2>
+        <div class="highscores-tabs">
+            <button class="highscore-tab active" onclick="showHighscoresTab(1)">משחק זיכרון</button>
+            <button class="highscore-tab" onclick="showHighscoresTab(2)">משחק איות</button>
+        </div>
+        <div id="highscores-content">
+            <p>טוען שיאים...</p>
+        </div>
+    `;
+
+    showHighscoresTab(1);
+}
+
+async function showHighscoresTab(gameNumber) {
+    // Update tab buttons
+    document.querySelectorAll('.highscore-tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.highscore-tab')[gameNumber - 1].classList.add('active');
+
+    const content = document.getElementById('highscores-content');
+
+    try {
+        const { data, error } = await _supabase
+            .from('highscores')
+            .select(`
+                highscore,
+                created_at,
+                profiles!inner (
+                    email
+                )
+            `)
+            .eq('game_number', gameNumber)
+            .order('highscore', { ascending: false })
+            .limit(5);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            content.innerHTML = '<p>אין עדיין שיאים למשחק זה.</p>';
+            return;
+        }
+
+        let html = '<table class="highscores-table"><thead><tr><th>מקום</th><th>שיא</th><th>מייל</th><th>תאריך</th></tr></thead><tbody>';
+
+        data.forEach((record, index) => {
+            const email = record.profiles?.email || 'לא זמין';
+            const maskedEmail = maskEmail(email);
+            const date = new Date(record.created_at).toLocaleDateString('he-IL');
+
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${record.highscore}</td>
+                    <td>${maskedEmail}</td>
+                    <td>${date}</td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table>';
+        content.innerHTML = html;
+    } catch (error) {
+        console.error('שגיאה בטעינת שיאים:', error);
+        content.innerHTML = '<p>שגיאה בטעינת שיאים.</p>';
+    }
+}
+
+function maskEmail(email) {
+    const [local, domain] = email.split('@');
+    if (local.length <= 3) return email; // Too short to mask
+
+    const maskedLocal = local.substring(0, 3) + '***' + local.substring(local.length - 3);
+    return maskedLocal + '@' + domain;
+}
+
+async function saveHighscore(gameNumber, score) {
+    if (!currentUser) return;
+
+    try {
+        // Check if user already has a higher score for this game
+        const { data: existing } = await _supabase
+            .from('highscores')
+            .select('highscore')
+            .eq('user_id', currentUser.id)
+            .eq('game_number', gameNumber)
+            .order('highscore', { ascending: false })
+            .limit(1);
+
+        if (existing && existing.length > 0 && existing[0].highscore >= score) {
+            return; // Don't save if existing score is higher or equal
+        }
+
+        // Delete old lower scores for this user and game
+        await _supabase
+            .from('highscores')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('game_number', gameNumber);
+
+        // Insert new highscore
+        const { error } = await _supabase
+            .from('highscores')
+            .insert([{
+                user_id: currentUser.id,
+                highscore: score,
+                game_number: gameNumber
+            }]);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('שגיאה בשמירת שיא:', error);
+    }
 }

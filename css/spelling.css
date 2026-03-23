@@ -77,6 +77,10 @@
     border-radius: 12px;
     border: 2px solid var(--gray);
     margin-bottom: 10px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 #spelling-input:focus {

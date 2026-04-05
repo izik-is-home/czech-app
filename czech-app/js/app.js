@@ -577,9 +577,16 @@ function nextRound() {
 
 // Show summary
 function showSummary() {
+    // Calculate Score
+    let calculatedScore = 0;
+    if (correctCount > 0 && gameStack.length > 0) {
+        const elapsed = Math.floor((Date.now() - memoryStartTime) / 1000);
+        calculatedScore = Math.round((correctCount / gameStack.length) * 10000 / Math.max(1, elapsed));
+    }
+
     // Save highscore
-    if (currentUser && correctCount > 0) {
-        saveHighscore(1, correctCount); // 1 for memory game
+    if (currentUser && calculatedScore > 0) {
+        saveHighscore(1, calculatedScore); // 1 for memory game
     }
 
     const container = document.getElementById('game-container');
@@ -1022,9 +1029,17 @@ function endSpellingGame() {
     clearInterval(spellingTimer);
     spellingGameActive = false;
 
+    // Calculate score based on correct words and time allocated
+    let calculatedScore = 0;
+    if (spellingScore > 0) {
+        const durationSelect = document.getElementById('spelling-duration');
+        const totalDuration = durationSelect ? parseInt(durationSelect.value) : 60;
+        calculatedScore = Math.round((spellingScore / Math.max(1, totalDuration)) * 1000);
+    }
+
     // Save highscore
-    if (currentUser && spellingScore > 0) {
-        saveHighscore(2, spellingScore); // 2 for spelling game
+    if (currentUser && calculatedScore > 0) {
+        saveHighscore(2, calculatedScore); // 2 for spelling game
     }
 
     const container = document.getElementById('spelling-container');
@@ -1038,10 +1053,32 @@ function endSpellingGame() {
 }
 
 // Highscores functions
+let currentHighscoreScope = 'global'; // 'global' or 'personal'
+let currentHighscoreGame = 1;
+
+window.changeHighscoreScope = function(scope) {
+    currentHighscoreScope = scope;
+    if (scope === 'personal' && !currentUser) {
+        alert('עליך להתחבר כדי לראות שיאים אישיים.');
+        currentHighscoreScope = 'global';
+        document.getElementById('highscore-scope-select').value = 'global';
+    }
+    showHighscoresTab(currentHighscoreGame);
+};
+
 async function loadHighscores() {
     const container = document.getElementById('highscores-container');
     container.innerHTML = `
         <h2>טבלת שיאים</h2>
+        
+        <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; align-items: center;">
+            <label style="font-weight: bold;">הצג עבור:</label>
+            <select id="highscore-scope-select" onchange="changeHighscoreScope(this.value)" style="padding: 8px 12px; border-radius: 8px; font-size: 1rem; border: 2px solid var(--primary-light);">
+                <option value="global">כלל השחקנים (עולמי)</option>
+                <option value="personal">שיאים אישיים שלי</option>
+            </select>
+        </div>
+
         <div class="highscores-tabs">
             <button class="highscore-tab active" onclick="showHighscoresTab(1)">משחק זיכרון</button>
             <button class="highscore-tab" onclick="showHighscoresTab(2)">משחק איות</button>
@@ -1051,10 +1088,13 @@ async function loadHighscores() {
         </div>
     `;
 
+    document.getElementById('highscore-scope-select').value = currentHighscoreScope;
     showHighscoresTab(1);
 }
 
 async function showHighscoresTab(gameNumber) {
+    currentHighscoreGame = gameNumber;
+    
     // Update tab buttons
     document.querySelectorAll('.highscore-tab').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.highscore-tab')[gameNumber - 1].classList.add('active');
@@ -1062,7 +1102,7 @@ async function showHighscoresTab(gameNumber) {
     const content = document.getElementById('highscores-content');
 
     try {
-        const { data, error } = await _supabase
+        let query = _supabase
             .from('highscores')
             .select(`
                 highscore,
@@ -1074,6 +1114,13 @@ async function showHighscoresTab(gameNumber) {
             .eq('game_number', gameNumber)
             .order('highscore', { ascending: false })
             .limit(5);
+
+        if (currentHighscoreScope === 'personal') {
+            if (!currentUser) return;
+            query = query.eq('user_id', currentUser.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -1087,7 +1134,7 @@ async function showHighscoresTab(gameNumber) {
         data.forEach((record, index) => {
             const email = record.profiles?.email || 'לא זמין';
             const maskedEmail = maskEmail(email);
-            const date = new Date(record.created_at).toLocaleDateString('he-IL');
+            const date = new Date(record.created_at).toLocaleDateString('he-IL', {hour: '2-digit', minute:'2-digit'});
 
             html += `
                 <tr>
@@ -1108,38 +1155,24 @@ async function showHighscoresTab(gameNumber) {
 }
 
 function maskEmail(email) {
-    const [local, domain] = email.split('@');
-    if (local.length <= 3) return email; // Too short to mask
-
-    const maskedLocal = local.substring(0, 3) + '***' + local.substring(local.length - 3);
-    return maskedLocal + '@' + domain;
+    if (!email || typeof email !== 'string') return email;
+    const parts = email.split('@');
+    if (parts.length !== 2) return email;
+    const local = parts[0];
+    const domain = parts[1];
+    if (local.length <= 3) return email; // Too short to mask nicely
+    
+    const firstThree = local.substring(0, 3);
+    const stars = '*'.repeat(Math.max(1, local.length - 3));
+    
+    return firstThree + stars + '@' + domain;
 }
 
 async function saveHighscore(gameNumber, score) {
     if (!currentUser) return;
 
     try {
-        // Check if user already has a higher score for this game
-        const { data: existing } = await _supabase
-            .from('highscores')
-            .select('highscore')
-            .eq('user_id', currentUser.id)
-            .eq('game_number', gameNumber)
-            .order('highscore', { ascending: false })
-            .limit(1);
-
-        if (existing && existing.length > 0 && existing[0].highscore >= score) {
-            return; // Don't save if existing score is higher or equal
-        }
-
-        // Delete old lower scores for this user and game
-        await _supabase
-            .from('highscores')
-            .delete()
-            .eq('user_id', currentUser.id)
-            .eq('game_number', gameNumber);
-
-        // Insert new highscore
+        // Insert new highscore, keeping history so user can see their top 5
         const { error } = await _supabase
             .from('highscores')
             .insert([{

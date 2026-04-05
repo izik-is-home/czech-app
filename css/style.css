@@ -38,7 +38,7 @@ html {
 
 body {
     font-family: var(--font-main);
-    background: var(--bg-light);
+    background: var(--white);
     color: var(--text-main);
     line-height: 1.6;
     min-height: 100vh;
@@ -63,12 +63,10 @@ body {
     max-width: 900px;
     margin: 20px auto;
     padding: 24px;
-    background: var(--glass);
+    background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Header */

@@ -618,6 +618,10 @@ function showSummary() {
                     <span class="stat-label">זמן כולל</span>
                     <span class="stat-value">${stopMemoryTimer()}</span>
                 </div>
+                <div class="stat-item" style="grid-column: 1 / -1; background: var(--success-bg);">
+                    <span class="stat-label">סך נקודות משחק</span>
+                    <span class="stat-value" style="color: var(--primary);">${calculatedScore}</span>
+                </div>
             </div>
             <button class="btn btn-primary" onclick="showDifficultySelector()">
                 🔄 שחק שוב
@@ -1047,7 +1051,10 @@ function endSpellingGame() {
         <div class="game-summary">
             <h2>⏰ הזמן נגמר!</h2>
             <p>הצלחת לאיית <strong>${spellingScore}</strong> מילים נכון.</p>
-            <button class="btn btn-primary" onclick="startSpellingGame()">שחק שוב 🔄</button>
+            <p style="font-size: 1.5rem; margin-top: 15px; font-weight: bold; background: var(--success-bg); padding: 10px; border-radius: 8px;">
+                סך הנקודות שצברת: <span style="color: var(--primary);">${calculatedScore}</span>
+            </p>
+            <button class="btn btn-primary" style="margin-top: 20px;" onclick="startSpellingGame()">שחק שוב 🔄</button>
         </div>
     `;
 }
@@ -1125,7 +1132,20 @@ async function showHighscoresTab(gameNumber) {
         if (error) throw error;
 
         if (!data || data.length === 0) {
-            content.innerHTML = '<p>אין עדיין שיאים למשחק זה.</p>';
+            let html = '<table class="highscores-table"><thead><tr><th>מקום</th><th>שיא</th><th>מייל</th><th>תאריך</th></tr></thead><tbody>';
+            const dummyDate = new Date().toLocaleDateString('he-IL', {hour: '2-digit', minute:'2-digit'});
+            for(let i=0; i<5; i++) {
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>0</td>
+                        <td>tes***@test.com</td>
+                        <td>${dummyDate}</td>
+                    </tr>
+                `;
+            }
+            html += '</tbody></table>';
+            content.innerHTML = html;
             return;
         }
 

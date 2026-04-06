@@ -587,6 +587,8 @@ function showSummary() {
     // Save highscore
     if (currentUser && calculatedScore > 0) {
         saveHighscore(1, calculatedScore); // 1 for memory game
+    } else if (!currentUser) {
+        setTimeout(() => showToast('כדי לשמור שיא-התחבר לחשבון שלך', 'warning'), 500);
     }
 
     const container = document.getElementById('game-container');
@@ -1044,6 +1046,8 @@ function endSpellingGame() {
     // Save highscore
     if (currentUser && calculatedScore > 0) {
         saveHighscore(2, calculatedScore); // 2 for spelling game
+    } else if (!currentUser) {
+        setTimeout(() => showToast('כדי לשמור שיא-התחבר לחשבון שלך', 'warning'), 500);
     }
 
     const container = document.getElementById('spelling-container');
@@ -1136,7 +1140,10 @@ async function showHighscoresTab(gameNumber) {
 
         if (error) {
             console.error('שגיאה בטעינת שיאים:', error);
-            showDummyRows();
+            content.innerHTML = `<div style="background:#fff3cd;border:1px solid #ffc107;padding:15px;border-radius:8px;margin:10px 0;">
+                <strong>שגיאת טעינה:</strong> ${error.message || JSON.stringify(error)}<br>
+                <small style="color:#666;margin-top:8px;display:block;">ייתכן שהבעיה היא פוליסת RLS ב-Supabase. בדוק בדשבורד את ההרשאות לטבלת highscores.</small>
+            </div>`;
             return;
         }
 
@@ -1180,20 +1187,48 @@ async function saveHighscore(gameNumber, score) {
     if (!currentUser) return;
 
     try {
-        // Include email so it can be displayed in the highscores table without needing a profiles join
         const userEmail = currentUser.email || '';
+        console.log('שמירת שיא:', { user_id: currentUser.id, email: userEmail, highscore: score, game_number: gameNumber });
         
-        const { error } = await _supabase
+        const { data, error } = await _supabase
             .from('highscores')
             .insert([{
                 user_id: currentUser.id,
                 email: userEmail,
                 highscore: score,
                 game_number: gameNumber
-            }]);
+            }])
+            .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error('שגיאת שמירה:', error);
+            showToast('שגיאה בשמירת שיא: ' + (error.message || error.code), 'error');
+        } else {
+            console.log('שיא נשמר בהצלחה:', data);
+            showToast('🏆 שיא נשמר בהצלחה!', 'success');
+        }
     } catch (error) {
         console.error('שגיאה בשמירת שיא:', error);
+        showToast('שגיאה בשמירת שיא', 'error');
     }
+}
+
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const existing = document.getElementById('app-toast');
+    if (existing) existing.remove();
+
+    const colors = { success: '#1DB981', error: '#D71B3B', warning: '#f59e0b', info: '#11457E' };
+    const toast = document.createElement('div');
+    toast.id = 'app-toast';
+    toast.style.cssText = `
+        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+        background: ${colors[type]}; color: white; padding: 12px 24px;
+        border-radius: 50px; font-weight: 700; font-size: 0.95rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }

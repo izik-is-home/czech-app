@@ -1107,17 +1107,22 @@ async function showHighscoresTab(gameNumber) {
     document.querySelectorAll('.highscore-tab')[gameNumber - 1].classList.add('active');
 
     const content = document.getElementById('highscores-content');
+    content.innerHTML = '<p style="text-align:center">טוען שיאים...</p>';
+
+    const showDummyRows = () => {
+        let html = '<table class="highscores-table"><thead><tr><th>מקום</th><th>שיא</th><th>מייל</th><th>תאריך</th></tr></thead><tbody>';
+        const dummyDate = new Date().toLocaleDateString('he-IL', {hour: '2-digit', minute:'2-digit'});
+        for(let i=0; i<5; i++) {
+            html += `<tr><td>${i + 1}</td><td>0</td><td>tes***@test.com</td><td>${dummyDate}</td></tr>`;
+        }
+        html += '</tbody></table>';
+        content.innerHTML = html;
+    };
 
     try {
         let query = _supabase
             .from('highscores')
-            .select(`
-                highscore,
-                created_at,
-                profiles!inner (
-                    email
-                )
-            `)
+            .select('highscore, created_at, email')
             .eq('game_number', gameNumber)
             .order('highscore', { ascending: false })
             .limit(5);
@@ -1129,48 +1134,31 @@ async function showHighscoresTab(gameNumber) {
 
         const { data, error } = await query;
 
-        if (error) throw error;
+        if (error) {
+            console.error('שגיאה בטעינת שיאים:', error);
+            showDummyRows();
+            return;
+        }
 
         if (!data || data.length === 0) {
-            let html = '<table class="highscores-table"><thead><tr><th>מקום</th><th>שיא</th><th>מייל</th><th>תאריך</th></tr></thead><tbody>';
-            const dummyDate = new Date().toLocaleDateString('he-IL', {hour: '2-digit', minute:'2-digit'});
-            for(let i=0; i<5; i++) {
-                html += `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>0</td>
-                        <td>tes***@test.com</td>
-                        <td>${dummyDate}</td>
-                    </tr>
-                `;
-            }
-            html += '</tbody></table>';
-            content.innerHTML = html;
+            showDummyRows();
             return;
         }
 
         let html = '<table class="highscores-table"><thead><tr><th>מקום</th><th>שיא</th><th>מייל</th><th>תאריך</th></tr></thead><tbody>';
 
         data.forEach((record, index) => {
-            const email = record.profiles?.email || 'לא זמין';
+            const email = record.email || 'לא זמין';
             const maskedEmail = maskEmail(email);
             const date = new Date(record.created_at).toLocaleDateString('he-IL', {hour: '2-digit', minute:'2-digit'});
-
-            html += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${record.highscore}</td>
-                    <td>${maskedEmail}</td>
-                    <td>${date}</td>
-                </tr>
-            `;
+            html += `<tr><td>${index + 1}</td><td>${record.highscore}</td><td>${maskedEmail}</td><td>${date}</td></tr>`;
         });
 
         html += '</tbody></table>';
         content.innerHTML = html;
-    } catch (error) {
-        console.error('שגיאה בטעינת שיאים:', error);
-        content.innerHTML = '<p>שגיאה בטעינת שיאים.</p>';
+    } catch (err) {
+        console.error('שגיאה בטעינת שיאים:', err);
+        showDummyRows();
     }
 }
 
@@ -1192,11 +1180,14 @@ async function saveHighscore(gameNumber, score) {
     if (!currentUser) return;
 
     try {
-        // Insert new highscore, keeping history so user can see their top 5
+        // Include email so it can be displayed in the highscores table without needing a profiles join
+        const userEmail = currentUser.email || '';
+        
         const { error } = await _supabase
             .from('highscores')
             .insert([{
                 user_id: currentUser.id,
+                email: userEmail,
                 highscore: score,
                 game_number: gameNumber
             }]);

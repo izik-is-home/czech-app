@@ -13,6 +13,7 @@
     --text-main: #334155;
     --text-muted: #64748b;
     --white: #ffffff;
+    --page-bg: #ffffff;      /* Always white - never changes with dark mode */
     --glass: rgba(255, 255, 255, 0.75);
     --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -38,7 +39,7 @@ html {
 
 body {
     font-family: var(--font-main);
-    background: var(--white);
+    background: var(--page-bg);
     color: var(--text-main);
     line-height: 1.6;
     min-height: 100vh;
